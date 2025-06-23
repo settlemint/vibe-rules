@@ -1,0 +1,15 @@
+# Source files (not needed in package)
+*.ts
+!*.d.ts
+tsconfig.json
+build.ts
+
+# GitHub files
+.github/
+
+# Development files
+test-project/
+bun.lock
+
+# Keep only compiled binaries in dist
+dist/*.map

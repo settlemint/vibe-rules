@@ -1,0 +1,55 @@
+{
+  "name": "@settlemint/vibe-rules",
+  "version": "1.0.0",
+  "description": "CLI tool to install shared vibe rules into your project",
+  "module": "index.ts",
+  "type": "module",
+  "bin": {
+    "settlemint-vibe-rules": "./dist/settlemint-vibe-rules"
+  },
+  "files": [
+    "dist/",
+    ".claude/",
+    ".cursor/",
+    "CLAUDE.md"
+  ],
+  "scripts": {
+    "build": "bun run build.ts",
+    "prepublishOnly": "bun run build",
+    "format": "biome format --write",
+    "lint": "biome lint --write"
+  },
+  "keywords": [
+    "cli",
+    "vibe",
+    "rules",
+    "settlemint",
+    "developer-tools"
+  ],
+  "license": "FSL-1.1-MIT",
+  "author": {
+    "name": "SettleMint",
+    "email": "support@settlemint.com",
+    "url": "https://settlemint.com"
+  },
+  "homepage": "https://github.com/settlemint/vibe-rules/blob/main/README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/settlemint/vibe-rules.git"
+  },
+  "bugs": {
+    "url": "https://github.com/settlemint/vibe-rules/issues",
+    "email": "support@settlemint.com"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.0.0",
+    "@types/bun": "latest",
+    "ultracite": "^5.0.10"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "context7": {
+      "url": "https://mcp.context7.com/sse"
+    },
+    "deepwiki": {
+      "url": "https://mcp.deepwiki.com/sse"
+    },
+    "Linear": {
+      "url": "https://mcp.linear.app/sse"
+    },
+    "Sentry": {
+      "url": "https://mcp.sentry.dev/sse"
+    },
+    "shadcn-ui": {
+      "command": "bunx",
+      "args": ["-y", "shadcn-ui-mcp-server"]
+    }
+  }
+}

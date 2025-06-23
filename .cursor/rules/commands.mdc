@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+- Before committing, always run `bun run ci`
+- When asked to create a PR, add all current changes, and analyse the branch
+  history to accurately describe the changes.
+- When pushing new changes to a branch with a PR, always update the title and
+  description to describe the entire changeset
