@@ -257,7 +257,9 @@ jobs:
 
           chmod +x dist/settlemint-vibe-rules
 
+      - name: Setup npm authentication
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ steps.secrets.outputs.NPM_TOKEN }}" > ~/.npmrc
+          
       - name: Publish to NPM
-        env:
-          NPM_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
         run: bun publish --access public
