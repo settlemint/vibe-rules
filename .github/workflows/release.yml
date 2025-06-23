@@ -102,7 +102,7 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           # Update version in package.json using Bun
-          bun run -e "const pkg = await Bun.file('package.json').json(); pkg.version = '${{ steps.tag_version.outputs.new_version }}'; await Bun.write('package.json', JSON.stringify(pkg, null, 2) + '\n')"
+          bun -e "const pkg = await Bun.file('package.json').json(); pkg.version = '${{ steps.tag_version.outputs.new_version }}'; await Bun.write('package.json', JSON.stringify(pkg, null, 2) + '\n')"
           git add package.json
           git commit -m "chore: update package.json version to ${{ steps.tag_version.outputs.new_version }} [skip ci]"
           git push origin HEAD:main
@@ -230,7 +230,7 @@ jobs:
       - name: Update package.json version
         run: |
           # Update version in package.json using Bun
-          bun run -e "const pkg = await Bun.file('package.json').json(); pkg.version = '${{ needs.tag.outputs.new_version }}'; await Bun.write('package.json', JSON.stringify(pkg, null, 2) + '\n')"
+          bun -e "const pkg = await Bun.file('package.json').json(); pkg.version = '${{ needs.tag.outputs.new_version }}'; await Bun.write('package.json', JSON.stringify(pkg, null, 2) + '\n')"
 
       - name: Create platform wrapper script
         run: |
