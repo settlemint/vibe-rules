@@ -14,11 +14,13 @@
     "CLAUDE.md"
   ],
   "scripts": {
-    "build": "bun run build.ts",
+    "generate": "bun generate-embedded-files.ts",
+    "build": "bun run generate && bun run build.ts",
     "prepublishOnly": "bun run build",
     "format": "biome format --write",
     "lint": "biome lint --write",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "ci": "bun run lint && bun run typecheck && bun run build"
   },
   "keywords": [
     "cli",

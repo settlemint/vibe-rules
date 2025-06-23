@@ -1,18 +1,18 @@
 import { Box, Text, useApp } from "ink";
-import { readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
 import updateNotifier from "update-notifier";
+import { EMBEDDED_FILES } from "../embedded-files.generated.js";
 import { Header } from "./header.js";
 import { TaskItem } from "./task-item.js";
 
-const __dirname = import.meta.dir
-  .replace("/src/components", "")
-  .replace("/dist", "");
-const packageJson = JSON.parse(
-  readFileSync(join(__dirname, "package.json"), "utf-8")
-);
+// Read package.json for update notifier
+const packageJson = { name: "@settlemint/vibe-rules", version: "1.0.0" };
+
+type EmbeddedFilesType = Record<string, Array<{ path: string; content: string }>>;
+const embeddedFiles = EMBEDDED_FILES as EmbeddedFilesType;
 
 interface Task {
   id: string;
@@ -41,100 +41,78 @@ export const App: React.FC = () => {
     []
   );
 
+  // Helper function to ensure directory exists
+  const ensureDir = useCallback((dirPath: string) => {
+    try {
+      mkdirSync(dirPath, { recursive: true });
+    } catch (_error) {
+      // Directory already exists or other error
+    }
+  }, []);
+
+  // Helper to copy a single file
+  const copyFile = useCallback(
+    (
+      taskId: string,
+      _taskName: string,
+      sourceKey: string,
+      targetBase?: string
+    ) => {
+      updateTaskStatus(taskId, "running");
+      try {
+        const files = embeddedFiles[sourceKey] || [];
+        if (files.length > 0) {
+          const targetDir = process.cwd();
+          if (files.length === 1 && !targetBase && files[0]) {
+            // Single file case (like CLAUDE.md)
+            const targetPath = join(targetDir, sourceKey);
+            writeFileSync(targetPath, files[0].content, "utf-8");
+          } else {
+            // Directory case
+            for (const file of files) {
+              const targetPath = join(
+                targetDir,
+                targetBase || sourceKey,
+                file.path
+              );
+              ensureDir(dirname(targetPath));
+              writeFileSync(targetPath, file.content, "utf-8");
+            }
+          }
+          updateTaskStatus(taskId, "success");
+        } else {
+          updateTaskStatus(taskId, "warning", "Source not found");
+        }
+      } catch (error) {
+        updateTaskStatus(taskId, "error", String(error));
+      }
+    },
+    [updateTaskStatus, ensureDir]
+  );
+
   useEffect(() => {
-    const runTasks = async () => {
-      // Check for updates
-      const notifier = updateNotifier({ pkg: packageJson });
-      if (notifier.update) {
-        updateTaskStatus(
-          "update-check",
-          "warning",
-          `Update available: ${notifier.update.latest}`
-        );
-      } else {
-        updateTaskStatus("update-check", "success", "Up to date");
-      }
+    // Check for updates
+    const notifier = updateNotifier({ pkg: packageJson });
+    if (notifier.update) {
+      updateTaskStatus(
+        "update-check",
+        "warning",
+        `Update available: ${notifier.update.latest}`
+      );
+    } else {
+      updateTaskStatus("update-check", "success", "Up to date");
+    }
 
-      const targetDir = process.cwd();
-      const sourceDir = resolve(__dirname);
+    // Copy files
+    copyFile("claude-md", "Copy CLAUDE.md", "CLAUDE.md");
+    copyFile("claude-dir", "Copy .claude directory", ".claude", ".claude");
+    copyFile("cursor-dir", "Copy .cursor directory", ".cursor", ".cursor");
 
-      // Helper function to ensure directory exists
-      const ensureDir = async (dirPath: string) => {
-        const dir = Bun.file(dirPath);
-        if (!(await dir.exists())) {
-          await Bun.$`mkdir -p ${dirPath}`.quiet();
-        }
-      };
-
-      // Copy CLAUDE.md
-      updateTaskStatus("claude-md", "running");
-      try {
-        const claudeMdSource = join(sourceDir, "CLAUDE.md");
-        const claudeMdTarget = join(targetDir, "CLAUDE.md");
-        const claudeMdFile = Bun.file(claudeMdSource);
-
-        if (await claudeMdFile.exists()) {
-          await Bun.write(claudeMdTarget, claudeMdFile);
-          updateTaskStatus("claude-md", "success");
-        } else {
-          updateTaskStatus("claude-md", "warning", "Source file not found");
-        }
-      } catch (error) {
-        updateTaskStatus("claude-md", "error", String(error));
-      }
-
-      // Copy .claude directory
-      updateTaskStatus("claude-dir", "running");
-      try {
-        const claudeSource = join(sourceDir, ".claude");
-        const claudeTarget = join(targetDir, ".claude");
-        const claudeDir = Bun.file(claudeSource);
-
-        if (await claudeDir.exists()) {
-          await ensureDir(claudeTarget);
-          await Bun.$`cp -rf ${claudeSource} ${claudeTarget}`.quiet();
-          updateTaskStatus("claude-dir", "success");
-        } else {
-          updateTaskStatus(
-            "claude-dir",
-            "warning",
-            "Source directory not found"
-          );
-        }
-      } catch (error) {
-        updateTaskStatus("claude-dir", "error", String(error));
-      }
-
-      // Copy .cursor directory
-      updateTaskStatus("cursor-dir", "running");
-      try {
-        const cursorSource = join(sourceDir, ".cursor");
-        const cursorTarget = join(targetDir, ".cursor");
-        const cursorDir = Bun.file(cursorSource);
-
-        if (await cursorDir.exists()) {
-          await ensureDir(cursorTarget);
-          await Bun.$`cp -rf ${cursorSource} ${cursorTarget}`.quiet();
-          updateTaskStatus("cursor-dir", "success");
-        } else {
-          updateTaskStatus(
-            "cursor-dir",
-            "warning",
-            "Source directory not found"
-          );
-        }
-      } catch (error) {
-        updateTaskStatus("cursor-dir", "error", String(error));
-      }
-
-      // Exit after a short delay to show the final state
-      setTimeout(() => {
-        exit();
-      }, 1500);
-    };
-
-    runTasks();
-  }, [updateTaskStatus, exit]);
+    // Exit after a short delay to show the final state
+    setTimeout(() => {
+      exit();
+    }, 1500);
+  }, [updateTaskStatus, exit, copyFile]);
 
   const hasErrors = tasks.some((task) => task.status === "error");
   const allComplete = tasks.every(

@@ -1,5 +1,4 @@
 import { Box, Text } from "ink";
-import BigText from "ink-big-text";
 import Gradient from "ink-gradient";
 import type React from "react";
 
@@ -15,11 +14,6 @@ export const Header: React.FC = () => {
       <Gradient name="rainbow">
         <Text>{ASCII_LOGO}</Text>
       </Gradient>
-      <Box marginTop={1}>
-        <Gradient name="cristal">
-          <BigText font="tiny" text="Vibe Rules" />
-        </Gradient>
-      </Box>
       <Box marginTop={1}>
         <Text dimColor>
           CLI tool to install shared vibe rules into your project
