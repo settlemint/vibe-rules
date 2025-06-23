@@ -17,7 +17,8 @@
     "build": "bun run build.ts",
     "prepublishOnly": "bun run build",
     "format": "biome format --write",
-    "lint": "biome lint --write"
+    "lint": "biome lint --write",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "cli",
@@ -44,6 +45,8 @@
   "devDependencies": {
     "@biomejs/biome": "2.0.0",
     "@types/bun": "latest",
+    "@types/react": "^19.1.8",
+    "@types/update-notifier": "^6.0.8",
     "ultracite": "^5.0.10"
   },
   "peerDependencies": {
@@ -53,6 +56,12 @@
     "access": "public"
   },
   "dependencies": {
+    "ink": "^6.0.0",
+    "ink-big-text": "^2.0.0",
+    "ink-gradient": "^3.0.0",
+    "ink-spinner": "^5.0.0",
+    "react": "^19.1.0",
+    "react-devtools-core": "^6.1.2",
     "update-notifier": "^7.3.1"
   }
 }
