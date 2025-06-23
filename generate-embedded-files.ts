@@ -63,9 +63,15 @@ async function generateEmbeddedFiles() {
     join(projectRoot, '.cursor')
   );
 
-  // Generate the embedded files module
+  // Generate the embedded files module with proper TypeScript types
   const output = `// This file is auto-generated. Do not edit manually.
-export const EMBEDDED_FILES = ${JSON.stringify(embeddedFiles, null, 2)};
+
+export interface EmbeddedFile {
+  path: string;
+  content: string;
+}
+
+export const EMBEDDED_FILES: Record<string, EmbeddedFile[]> = ${JSON.stringify(embeddedFiles, null, 2)};
 `;
 
   await Bun.write(

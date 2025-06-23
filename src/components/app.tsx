@@ -4,15 +4,12 @@ import { dirname, join } from "node:path";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
 import updateNotifier from "update-notifier";
-import { EMBEDDED_FILES } from "../embedded-files.generated.js";
+import { EMBEDDED_FILES } from "../embedded-files.generated";
 import { Header } from "./header.js";
 import { TaskItem } from "./task-item.js";
 
 // Read package.json for update notifier
 const packageJson = { name: "@settlemint/vibe-rules", version: "1.0.0" };
-
-type EmbeddedFilesType = Record<string, Array<{ path: string; content: string }>>;
-const embeddedFiles = EMBEDDED_FILES as EmbeddedFilesType;
 
 interface Task {
   id: string;
@@ -60,7 +57,7 @@ export const App: React.FC = () => {
     ) => {
       updateTaskStatus(taskId, "running");
       try {
-        const files = embeddedFiles[sourceKey] || [];
+        const files = EMBEDDED_FILES[sourceKey] || [];
         if (files.length > 0) {
           const targetDir = process.cwd();
           if (files.length === 1 && !targetBase && files[0]) {

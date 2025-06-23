@@ -35,4 +35,3 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Generated files
 src/embedded-files.generated.ts
-src/embedded-files.generated.ts

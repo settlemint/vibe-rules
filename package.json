@@ -19,7 +19,7 @@
     "prepublishOnly": "bun run build",
     "format": "biome format --write",
     "lint": "biome lint --write",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "bun run generate && tsc --noEmit",
     "ci": "bun run lint && bun run typecheck && bun run build"
   },
   "keywords": [
