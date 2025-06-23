@@ -136,9 +136,11 @@ jobs:
         with:
           service-account-token: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
-      - name: Load all secrets
+      - name: Load NPM Token from 1Password
         id: secrets
         uses: 1password/load-secrets-action@v2
+        with:
+          export-env: false
         env:
           NPM_TOKEN: op://platform/npmjs/credential
 
@@ -163,4 +165,6 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${{ steps.secrets.outputs.NPM_TOKEN }}" > ~/.npmrc
           
       - name: Publish to NPM
-        run: bun publish --access public
+        run: |
+          npm config set //registry.npmjs.org/:_authToken=${{ steps.secrets.outputs.NPM_TOKEN }}
+          npm publish --access public
