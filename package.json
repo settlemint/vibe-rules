@@ -5,22 +5,23 @@
   "module": "index.ts",
   "type": "module",
   "bin": {
-    "settlemint-vibe-rules": "./dist/settlemint-vibe-rules"
+    "settlemint-vibe-rules": "./index.ts"
   },
   "files": [
-    "dist/",
+    "index.ts",
+    "src/",
+    "embedded-files.ts",
     ".claude/",
     ".cursor/",
     "CLAUDE.md"
   ],
   "scripts": {
     "generate": "bun generate-embedded-files.ts",
-    "build": "bun run generate && bun run build.ts",
-    "prepublishOnly": "bun run build",
+    "prepublishOnly": "bun run generate",
     "format": "biome format --write",
     "lint": "biome lint --write",
     "typecheck": "bun run generate && tsc --noEmit",
-    "ci": "bun run lint && bun run typecheck && bun run build"
+    "ci": "bun run lint && bun run typecheck"
   },
   "keywords": [
     "cli",

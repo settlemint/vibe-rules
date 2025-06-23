@@ -2,15 +2,13 @@
 
 CLI tool to install shared development rules and configurations for Claude Code and Cursor into your project.
 
+## Prerequisites
+
+- [Bun](https://bun.sh) runtime (required)
+
 ## Installation
 
 ```bash
-npm install -g @settlemint/vibe-rules
-# or
-yarn global add @settlemint/vibe-rules
-# or
-pnpm add -g @settlemint/vibe-rules
-# or
 bun add -g @settlemint/vibe-rules
 ```
 
@@ -60,7 +58,7 @@ Model Context Protocol server configurations for enhanced AI capabilities.
 ### Prerequisites
 - [Bun](https://bun.sh) runtime
 
-### Building from Source
+### Running from Source
 
 ```bash
 # Clone the repository
@@ -70,19 +68,8 @@ cd vibe-rules
 # Install dependencies
 bun install
 
-# Build binaries for all platforms
-bun run build
-```
-
-### Running Locally
-
-```bash
-# Run directly with Bun
+# Run directly
 bun run index.ts
-
-# Or build and run the binary
-bun run build
-./dist/settlemint-vibe-rules-macos-arm64  # Example for macOS ARM64
 ```
 
 ## License
