@@ -1,17 +1,114 @@
-name: Build and Release
+name: Test, Tag and Release
+
+# This workflow runs on every push to main:
+# 1. Runs tests (lint, typecheck, build, CLI test)
+# 2. Auto-tags based on conventional commits
+# 3. Builds binaries for all platforms
+# 4. Creates GitHub release
+# 5. Publishes to npm
 
 on:
   push:
-    tags:
-      - "v*"
-  workflow_dispatch:
+    branches:
+      - main
 
 permissions:
   contents: write
   packages: write
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Type check
+        run: bun run typecheck
+
+      - name: Test build
+        run: bun run build
+
+      - name: Test CLI locally
+        run: |
+          # Create a test directory
+          mkdir -p test-project
+          cd test-project
+
+          # Run the CLI
+          bun run ../index.ts
+
+          # Verify files were copied
+          test -f CLAUDE.md
+          test -d .claude
+          test -d .cursor
+
+          echo "✅ CLI test passed!"
+
+  tag:
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.tag_version.outputs.new_tag }}
+      new_version: ${{ steps.tag_version.outputs.new_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: patch
+          release_branches: main
+          pre_release_branches: develop,beta
+          append_to_pre_release_tag: beta
+          # Custom release rules for all conventional commit types
+          custom_release_rules: |
+            feat:minor,
+            fix:patch,
+            docs:patch,
+            style:patch,
+            refactor:patch,
+            perf:patch,
+            test:patch,
+            build:patch,
+            ci:patch,
+            chore:patch,
+            revert:patch
+
+      - name: Update package.json version
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          # Update version in package.json using Bun
+          bun run -e "const pkg = await Bun.file('package.json').json(); pkg.version = '${{ steps.tag_version.outputs.new_version }}'; await Bun.write('package.json', JSON.stringify(pkg, null, 2) + '\n')"
+          git add package.json
+          git commit -m "chore: update package.json version to ${{ steps.tag_version.outputs.new_version }} [skip ci]"
+          git push origin HEAD:main
+
   build:
+    needs: tag
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -61,9 +158,8 @@ jobs:
           retention-days: 1
 
   release:
-    needs: build
+    needs: [tag, build]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
 
     steps:
       - name: Checkout code
@@ -89,19 +185,22 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ needs.tag.outputs.new_tag }}
+          name: Release ${{ needs.tag.outputs.new_version }}
           files: dist/*
           generate_release_notes: true
           draft: false
           prerelease: false
 
   publish-npm:
-    needs: build
+    needs: [tag, build]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.tag.outputs.new_tag }}
 
       - name: Setup 1Password
         uses: 1password/load-secrets-action/configure@v2
@@ -113,12 +212,6 @@ jobs:
         uses: 1password/load-secrets-action@v2
         env:
           NPM_TOKEN: op://platform/npmjs/credential
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          registry-url: "https://registry.npmjs.org"
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -134,9 +227,15 @@ jobs:
           name: binaries
           path: dist/
 
+      - name: Update package.json version
+        run: |
+          # Update version in package.json using Bun
+          bun run -e "const pkg = await Bun.file('package.json').json(); pkg.version = '${{ needs.tag.outputs.new_version }}'; await Bun.write('package.json', JSON.stringify(pkg, null, 2) + '\n')"
+
       - name: Create platform wrapper script
         run: |
-          cat > dist/vibe-rules << 'EOF'
+          # Create a Node.js wrapper for npm users (who may not have Bun)
+          cat > dist/settlemint-vibe-rules << 'EOF'
           #!/usr/bin/env node
           const { execFileSync } = require('child_process');
           const { join } = require('path');
@@ -144,11 +243,11 @@ jobs:
 
           const getBinary = () => {
             const map = {
-              'darwin-x64': 'vibe-rules-macos-x64',
-              'darwin-arm64': 'vibe-rules-macos-arm64',
-              'linux-x64': 'vibe-rules-linux-x64',
-              'linux-arm64': 'vibe-rules-linux-arm64',
-              'win32-x64': 'vibe-rules-windows-x64.exe',
+              'darwin-x64': 'settlemint-vibe-rules-macos-x64',
+              'darwin-arm64': 'settlemint-vibe-rules-macos-arm64',
+              'linux-x64': 'settlemint-vibe-rules-linux-x64',
+              'linux-arm64': 'settlemint-vibe-rules-linux-arm64',
+              'win32-x64': 'settlemint-vibe-rules-windows-x64.exe',
             };
 
             const key = `${platform}-${arch}`;
@@ -169,9 +268,9 @@ jobs:
           }
           EOF
 
-          chmod +x dist/vibe-rules
+          chmod +x dist/settlemint-vibe-rules
 
       - name: Publish to NPM
-        run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
+        run: bun publish --access public
