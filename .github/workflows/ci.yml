@@ -2,17 +2,28 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup 1Password
+        uses: 1password/load-secrets-action/configure@v2
+        with:
+          service-account-token: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+
+      - name: Load all secrets
+        id: secrets
+        uses: 1password/load-secrets-action@v2
+        env:
+          NPM_TOKEN: op://platform/npmjs/credential
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -33,13 +44,13 @@ jobs:
           # Create a test directory
           mkdir -p test-project
           cd test-project
-          
+
           # Run the CLI
           bun run ../index.ts
-          
+
           # Verify files were copied
           test -f CLAUDE.md
           test -d .claude
           test -d .cursor
-          
+
           echo "✅ CLI test passed!"

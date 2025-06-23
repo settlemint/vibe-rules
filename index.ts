@@ -1,7 +1,14 @@
 #!/usr/bin/env bun
 import { join, resolve } from 'node:path';
+import updateNotifier from 'update-notifier';
+import { readFileSync } from 'node:fs';
 
 const __dirname = import.meta.dir;
+
+// Read package.json for update notifier
+const packageJson = JSON.parse(
+  readFileSync(join(__dirname, 'package.json'), 'utf-8')
+);
 
 const COLORS = {
   reset: '\x1b[0m',
@@ -24,6 +31,10 @@ async function ensureDir(dirPath: string) {
 }
 
 async function copyVibeRules() {
+  // Check for updates
+  const notifier = updateNotifier({ pkg: packageJson });
+  notifier.notify({ defer: false });
+
   const targetDir = process.cwd();
   const sourceDir = resolve(__dirname);
 

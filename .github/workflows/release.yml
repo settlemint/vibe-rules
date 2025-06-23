@@ -31,6 +31,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup 1Password
+        uses: 1password/load-secrets-action/configure@v2
+        with:
+          service-account-token: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+
+      - name: Load all secrets
+        id: secrets
+        uses: 1password/load-secrets-action@v2
+        env:
+          NPM_TOKEN: op://platform/npmjs/credential
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -58,6 +69,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup 1Password
+        uses: 1password/load-secrets-action/configure@v2
+        with:
+          service-account-token: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+
+      - name: Load all secrets
+        id: secrets
+        uses: 1password/load-secrets-action@v2
+        env:
+          NPM_TOKEN: op://platform/npmjs/credential
+
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -80,6 +102,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup 1Password
+        uses: 1password/load-secrets-action/configure@v2
+        with:
+          service-account-token: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+
+      - name: Load all secrets
+        id: secrets
+        uses: 1password/load-secrets-action@v2
+        env:
+          NPM_TOKEN: op://platform/npmjs/credential
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
