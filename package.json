@@ -1,6 +1,6 @@
 {
   "name": "@settlemint/vibe-rules",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "CLI tool to install shared vibe rules into your project",
   "module": "index.ts",
   "type": "module",
