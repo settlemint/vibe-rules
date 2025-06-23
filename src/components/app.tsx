@@ -1,5 +1,5 @@
 import { Box, Text, useApp } from "ink";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -22,7 +22,7 @@ export const App: React.FC = () => {
   const { exit } = useApp();
   const [tasks, setTasks] = useState<Task[]>([
     { id: "update-check", name: "Checking for updates", status: "running" },
-    { id: "claude-md", name: "Copy CLAUDE.md", status: "pending" },
+    { id: "redirect-claude-md", name: "Copy REDIRECT-CLAUDE.md", status: "pending" },
     { id: "claude-dir", name: "Copy .claude directory", status: "pending" },
     { id: "cursor-dir", name: "Copy .cursor directory", status: "pending" },
   ]);
@@ -101,7 +101,26 @@ export const App: React.FC = () => {
     }
 
     // Copy files
-    copyFile("claude-md", "Copy CLAUDE.md", "CLAUDE.md");
+    // Only copy REDIRECT-CLAUDE.md if CLAUDE.md doesn't already exist
+    const claudeMdPath = join(process.cwd(), "CLAUDE.md");
+    if (existsSync(claudeMdPath)) {
+      updateTaskStatus("redirect-claude-md", "success", "CLAUDE.md already exists");
+    } else {
+      // Copy REDIRECT-CLAUDE.md as CLAUDE.md in the target project
+      updateTaskStatus("redirect-claude-md", "running");
+      try {
+        const files = EMBEDDED_FILES["REDIRECT-CLAUDE.md"] || [];
+        if (files.length > 0 && files[0]) {
+          const targetPath = join(process.cwd(), "CLAUDE.md");
+          writeFileSync(targetPath, files[0].content, "utf-8");
+          updateTaskStatus("redirect-claude-md", "success");
+        } else {
+          updateTaskStatus("redirect-claude-md", "warning", "Source not found");
+        }
+      } catch (error) {
+        updateTaskStatus("redirect-claude-md", "error", String(error));
+      }
+    }
     copyFile("claude-dir", "Copy .claude directory", ".claude", ".claude");
     copyFile("cursor-dir", "Copy .cursor directory", ".cursor", ".cursor");
 
@@ -147,7 +166,8 @@ export const App: React.FC = () => {
                 The following files have been copied to your project:
               </Text>
               <Box flexDirection="column" marginLeft={2}>
-                <Text dimColor>• CLAUDE.md</Text>
+                <Text dimColor>• CLAUDE.md (redirect)</Text>
+                <Text dimColor>• .claude/CLAUDE.md (main config)</Text>
                 <Text dimColor>• .claude/commands/</Text>
                 <Text dimColor>• .cursor/rules/</Text>
                 <Text dimColor>• .cursor/mcp.json</Text>

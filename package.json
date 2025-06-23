@@ -9,11 +9,7 @@
   },
   "files": [
     "index.ts",
-    "src/",
-    "embedded-files.ts",
-    ".claude/",
-    ".cursor/",
-    "CLAUDE.md"
+    "src/"
   ],
   "scripts": {
     "generate": "bun generate-embedded-files.ts",

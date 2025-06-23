@@ -40,15 +40,15 @@ async function generateEmbeddedFiles() {
   // Embed files
   const embeddedFiles: Record<string, EmbeddedFile[]> = {};
 
-  // Embed CLAUDE.md
+  // Embed REDIRECT-CLAUDE.md (the redirect file that will be copied as CLAUDE.md in target projects)
   try {
-    const claudeMdFile = Bun.file(join(projectRoot, 'CLAUDE.md'));
-    const claudeMdContent = await claudeMdFile.text();
-    embeddedFiles['CLAUDE.md'] = [
-      { path: 'CLAUDE.md', content: claudeMdContent },
+    const redirectClaudeMdFile = Bun.file(join(projectRoot, '.claude', 'REDIRECT-CLAUDE.md'));
+    const redirectClaudeMdContent = await redirectClaudeMdFile.text();
+    embeddedFiles['REDIRECT-CLAUDE.md'] = [
+      { path: 'REDIRECT-CLAUDE.md', content: redirectClaudeMdContent },
     ];
   } catch (_error) {
-    embeddedFiles['CLAUDE.md'] = [];
+    embeddedFiles['REDIRECT-CLAUDE.md'] = [];
   }
 
   // Embed .claude directory
