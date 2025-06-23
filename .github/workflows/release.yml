@@ -110,19 +110,6 @@ jobs:
   build:
     needs: tag
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - target: linux-x64
-            os: ubuntu-latest
-          - target: linux-arm64
-            os: ubuntu-latest
-          - target: macos-x64
-            os: macos-latest
-          - target: macos-arm64
-            os: macos-latest
-          - target: windows-x64
-            os: windows-latest
 
     steps:
       - name: Checkout code
