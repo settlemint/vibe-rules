@@ -17,7 +17,7 @@
         "@types/bun": "latest",
         "@types/react": "19.1.8",
         "@types/update-notifier": "6.0.8",
-        "ultracite": "5.0.10",
+        "ultracite": "5.0.12",
       },
       "peerDependencies": {
         "typescript": "^5",
@@ -435,7 +435,7 @@
 
     "typescript": ["typescript@5.8.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ=="],
 
-    "ultracite": ["ultracite@5.0.10", "", { "dependencies": { "@clack/prompts": "^0.11.0", "commander": "^14.0.0", "deepmerge": "^4.3.1", "vitest": "^3.2.4" }, "bin": { "ultracite": "dist/index.js" } }, "sha512-+xZSolMhr900jy9ymGaiRIXj2flfF/48s6ymqSj8LVWqnOE2Msoq8vd+Gt6ROAD9evO9oejTBFMSeI6SIkWwyg=="],
+    "ultracite": ["ultracite@5.0.12", "", { "dependencies": { "@clack/prompts": "^0.11.0", "commander": "^14.0.0", "deepmerge": "^4.3.1", "vitest": "^3.2.4" }, "bin": { "ultracite": "dist/index.js" } }, "sha512-K9K3ARSfAZ22VGfQE/1+x5iMvgvFpGcNQNEyAivukQS/C1qS+4jMVyaB/4XiD/jZ9QbWm53Hn1o/KzTok9wXYg=="],
 
     "undici-types": ["undici-types@7.8.0", "", {}, "sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw=="],
 
