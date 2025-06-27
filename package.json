@@ -42,7 +42,7 @@
     "email": "support@settlemint.com"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.0.0",
+    "@biomejs/biome": "2.0.6",
     "@types/bun": "latest",
     "@types/react": "19.1.8",
     "@types/update-notifier": "6.0.8",
